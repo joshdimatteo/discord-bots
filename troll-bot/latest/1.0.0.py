@@ -34,6 +34,8 @@ valid_trolls = ['NAME_COLOR', 'MESSAGE_DELETE', 'GHOST_PING']
 
 # Command loop
 def console():
+    global data
+
     while True:
         command = input('[>] ')
 
@@ -90,6 +92,7 @@ log                           Prints all commands executed during this session
 data                          Prints saved data on users and servers
 
 save                          Saves data
+load                          Loads most recent save
 backup                        Saves a backup of saved data
 shutdown                      Automatically saves data and writes a log
 """)
@@ -120,6 +123,12 @@ GHOST_PING                          Periodically ghost pings the user
             with open('data.json', 'w') as d:
                 json.dump(data, d)
                 print('\n[+] Saved data.\n')
+
+        # Loads data.
+        elif command == 'load':
+            with open('data.json', 'r') as d:
+                data = json.load(d)
+                print('\n[+] Loaded most recent save.\n')
 
         # Saves current user data and log into a backup file
         elif command == 'backup':
