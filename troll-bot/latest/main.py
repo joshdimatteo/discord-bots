@@ -138,9 +138,7 @@ GHOST_PING                          Periodically ghost pings the user
                 os.makedirs(f'backups\\{NOW.date()}')
 
             # Opens a json file with the same name as the tieme and saves data.
-            with open(
-                    f'backups\\{NOW.date()}\\{str(NOW.time())[:-7].replace(":", ".")}.json',
-                    'w') as b:
+            with open(f'backups\\{NOW.date()}\\{str(NOW.time())[:-7].replace(":", ".")}.json', 'w') as b:
                 json.dump(data, b)
 
             print('[+] Successfully backed up data.\n')
@@ -158,9 +156,7 @@ GHOST_PING                          Periodically ghost pings the user
                 os.makedirs(f'logs\\{NOW.date()}')
 
             # Opens a txt file with the same name as the time and saves log.
-            with open(
-                    f'logs\\{NOW.date()}\\{str(NOW.time())[:-7].replace(":", ".")}.txt',
-                    'w') as l:
+            with open(f'logs\\{NOW.date()}\\{str(NOW.time())[:-7].replace(":", ".")}.txt', 'w') as l:
                 for line in log:
                     l.write(line + '\n')
 
