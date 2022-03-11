@@ -8,6 +8,7 @@ from discord.ext import commands
 # Constants
 PREFIX = '>'
 TOKEN = os.environ['TOKEN']
+NOW = datetime.now()
 
 # Actual bot
 bot = commands.Bot(command_prefix=PREFIX)
@@ -133,12 +134,12 @@ GHOST_PING                          Periodically ghost pings the user
             print('[*] Backing up data...')
 
             # Checks if path exists for a folder for a specific date
-            if not os.path.exists(f'backups\\{datetime.now().date()}'):
-                os.makedirs(f'backups\\{datetime.now().date()}')
+            if not os.path.exists(f'backups\\{NOW.date()}'):
+                os.makedirs(f'backups\\{NOW.date()}')
 
             # Opens a json file with the same name as the tieme and saves data.
             with open(
-                    f'backups\\{datetime.now().date()}\\{str(datetime.now().time())[:-7].replace(":", ".")}.json',
+                    f'backups\\{NOW.date()}\\{str(NOW.time())[:-7].replace(":", ".")}.json',
                     'w') as b:
                 json.dump(data, b)
 
@@ -153,12 +154,12 @@ GHOST_PING                          Periodically ghost pings the user
                 json.dump(data, d)
 
             # Checks if path exists for a folder for a specific date.
-            if not os.path.exists(f'logs\\{datetime.now().date()}'):
-                os.makedirs(f'logs\\{datetime.now().date()}')
+            if not os.path.exists(f'logs\\{NOW.date()}'):
+                os.makedirs(f'logs\\{NOW.date()}')
 
             # Opens a txt file with the same name as the time and saves log.
             with open(
-                    f'logs\\{datetime.now().date()}\\{str(datetime.now().time())[:-7].replace(":", ".")}.txt',
+                    f'logs\\{NOW.date()}\\{str(NOW.time())[:-7].replace(":", ".")}.txt',
                     'w') as l:
                 for line in log:
                     l.write(line + '\n')
