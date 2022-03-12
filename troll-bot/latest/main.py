@@ -1,5 +1,6 @@
 import os
 import json
+import discord
 from psutil import Process
 from threading import Thread
 from datetime import datetime
@@ -11,7 +12,7 @@ TOKEN = os.environ['TOKEN']
 NOW = datetime.now()
 
 # Actual bot
-bot = commands.Bot(command_prefix=PREFIX)
+bot = commands.Bot(command_prefix=PREFIX, help_command=None)
 
 # Double checks workspace
 if not os.path.exists('backups'):
@@ -177,6 +178,65 @@ async def on_ready():
 
     cmd_loop = Thread(target=console)
     cmd_loop.start()
+
+
+# Console commands, but through discord.
+@bot.command()
+async def help(ctx, *args):
+    if len(args) == 0:
+        await ctx.send(embed=discord.Embed(description="""
+**Help Commands**
+`>help help`
+
+**Troll Commands**
+`>help trolls`
+
+**Data Management**
+`>help data`
+
+**System Management**
+`>help system`"""))
+
+    elif len(args) == 1:
+        if args[0] == 'help':
+            await ctx.send(embed=discord.Embed(description="""
+**Prints help commands**
+`>help <criteria>`
+
+**Prints list of all trolls**
+`>trolls`"""))
+        elif args[0] == 'trolls':
+            await ctx.send(embed=discord.Embed(description="""
+**Applies a given troll to a user**
+`>troll <user> <troll>`
+
+**Removes a given troll from a user**
+`>untroll <user> <troll>`"""))
+        elif args[0] == 'data':
+            await ctx.send(embed=discord.Embed(description="""
+**Sends raw json of all stored data**
+`>data`
+
+**Sends all currently logged commands**
+`>log`"""))
+        elif args[0] == 'system':
+            await ctx.send(embed=discord.Embed(description="""
+**Saves current data**
+`>save`
+
+**Loads most recent save of data**
+`>load`
+
+**Backs up data**
+`>backup`
+
+**Shuts down bot**
+`>shutdown`"""))
+        else:
+            await ctx.send(embed=discord.Embed(description='**Invalid Help Criteria**'))
+
+    log.append(
+        f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: help {" ".join(arg for arg in args)}')
 
 
 @bot.command()
