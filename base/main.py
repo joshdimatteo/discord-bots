@@ -126,37 +126,26 @@ async def on_ready():
     cmd_loop.start()
 
 
-# Console commands, but through discord.
+# Console commands, but through discord. Only used by the bot owner.
 @bot.command()
 async def help(ctx, criteria=None):
-    if not criteria:
-        await ctx.send(embed=discord.Embed(description="""
-**Help Commands**
-`>help help`
+    command_log.append(f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: \
+     help {(criteria if criteria is not None else "")}')
 
-**Data Management**
-`>help data`
-
-**System Management**
-`>help system`"""))
-
-    else:
-        if criteria == 'help':
-            await ctx.send(embed=discord.Embed(description="""
+    # Prints all commands the owner can do, if the owner requests it.
+    if criteria == 'admin' and await bot.is_owner(ctx.message.author):
+        await ctx.send(embed=discord.Embed(title='Help Commands', description="""
 **Prints help commands**
 `>help <criteria>`
 """))
-
-        elif criteria == 'data':
-            await ctx.send(embed=discord.Embed(description="""
+        await ctx.send(embed=discord.Embed(title='Data Management', description="""
 **Sends raw json of all stored data**
 `>data`
 
 **Sends all currently logged commands**
-`>log`"""))
-
-        elif criteria == 'system':
-            await ctx.send(embed=discord.Embed(description="""
+`>log`
+"""))
+        await ctx.send(embed=discord.Embed(title='System Management', description="""
 **Saves current data**
 `>save`
 
@@ -167,39 +156,54 @@ async def help(ctx, criteria=None):
 `>backup`
 
 **Shuts down bot**
-`>shutdown`"""))
+`>shutdown`
+"""))
 
-        else:
-            await ctx.send(embed=discord.Embed(description='**Invalid Help Criteria**'))
-
-    command_log.append(
-        f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: help {criteria}')
+    # Base for help table.
+    if not criteria:
+        await ctx.send(embed=discord.Embed(description="""
+**Miscellaneous**
+`>help misc`
+"""))
+    elif criteria == 'misc':
+        await ctx.send(embed=discord.Embed(description="""
+**Pings bot**
+`>ping`
+"""))
 
 
 @bot.command()
+@commands.is_owner()
 async def log(ctx):
-    if len(command_log) == 0:
-        await ctx.send(embed=discord.Embed(description='None'))
-    else:
-        await ctx.send(embed=discord.Embed(description='\n'.join(line.replace('[#]', '') for line in command_log)))
-        command_log.append(f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: log')
+    command_log.append(f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: log')
+
+    await ctx.send(embed=discord.Embed(description='\n'.join(line.replace('[#]', '') for line in command_log)))
+    command_log.append(f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: log')
 
 
 @bot.command()
+@commands.is_owner()
 async def data(ctx):
+    command_log.append(f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: data')
+
     await ctx.send(embed=discord.Embed(description=bot_data))
 
 
 @bot.command()
+@commands.is_owner()
 async def save(ctx):
+    command_log.append(f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: save')
+
     with open('data.json', 'w') as d7:
         json.dump(bot_data, d7)
         await ctx.send('Saved data into file.')
 
 
 @bot.command()
+@commands.is_owner()
 async def load(ctx):
     global bot_data
+    command_log.append(f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: load')
 
     with open('data.json', 'r') as d8:
         bot_data = json.load(d8)
@@ -207,7 +211,9 @@ async def load(ctx):
 
 
 @bot.command()
+@commands.is_owner()
 async def backup(ctx):
+    command_log.append(f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: backup')
 
     # Checks if path exists for a folder for a specific date
     if not os.path.exists(f'backups\\{NOW.date()}'):
@@ -221,7 +227,9 @@ async def backup(ctx):
 
 
 @bot.command()
+@commands.is_owner()
 async def shutdown(ctx):
+    command_log.append(f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: shutdown')
 
     # Saves data.
     with open('data.json', 'w') as d5:
@@ -243,10 +251,11 @@ async def shutdown(ctx):
     Process(pid).terminate()
 
 
+# Commands for all users.
 @bot.command()
 async def ping(ctx):
-    await ctx.send('pong')
     command_log.append(f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: ping')
+    await ctx.send('pong')
 
 
 # Runs bot
