@@ -84,11 +84,11 @@ def console():
         # Shows help table.
         elif command[0] == 'help':
             print("""
-troll <user> <troll>          Applies a given troll to a user
-untroll <user> <troll>        Removes a given troll from a user
-
 help                          Prints this table
 trolls                        Prints a table of valid trolls and their uses
+
+troll <user> <troll>          Applies a given troll to a user
+untroll <user> <troll>        Removes a given troll from a user
 
 log                           Prints all commands executed during this session
 data                          Prints saved data on users and servers
@@ -104,7 +104,7 @@ shutdown                      Automatically saves data and writes a log
             print("""
 NAME_COLOR                    Periodically changes the color of the user's name
 MESSAGE_DELETE                Randomly deletes a message that the user sends
-GHOST_PING                          Periodically ghost pings the user
+GHOST_PING                    Periodically ghost pings the user
 """)
 
         # Prints log.
@@ -237,6 +237,47 @@ async def help(ctx, *args):
 
     log.append(
         f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: help {" ".join(arg for arg in args)}')
+
+
+@bot.command()
+async def trolls(ctx):
+    await ctx.send(embed=discord.Embed(description="""
+**Periodically changes the color of the user's name**
+`>troll <user> NAME_COLOR`
+
+**Randomly deletes a message that the user sends**
+`>troll <user> MESSAGE_DELETE`
+
+**Periodically ghost pings the user**
+`>troll <user> GHOST_PING`
+"""))
+
+
+@bot.command()
+async def troll(ctx, user, troll_id):
+    global valid_trolls, data
+
+    # Ensures proper user format.
+    if "#" not in user:
+        user = await bot.fetch_user(int(user.strip('<@!').strip('>')))
+        user = user.name + '#' + user.discriminator
+
+    # Checks if its a valid troll.
+    if troll_id in valid_trolls:
+
+        # Checks if the user exists in the data dictionary.
+        if user not in data.keys():
+            data[user] = []
+
+        # Checks if the user already has the troll applied.
+        if troll_id in data[user]:
+            await ctx.send('User already has troll applied.\n')
+        else:
+            # Adds troll.
+            data[user].append(troll_id)
+            await ctx.send(f'Added {troll_id} to {user}.')
+    else:
+        await ctx.send('Invalid Troll Criteria.')
 
 
 @bot.command()
