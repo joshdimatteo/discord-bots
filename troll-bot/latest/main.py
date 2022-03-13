@@ -279,6 +279,37 @@ async def troll(ctx, user, troll_id):
     else:
         await ctx.send('Invalid Troll Criteria.')
 
+    log.append(f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: troll {user} {troll_id}')
+
+
+@bot.command()
+async def untroll(ctx, user, troll_id):
+    global valid_trolls, data
+
+    # Ensures proper user format.
+    if "#" not in user:
+        user = await bot.fetch_user(int(user.strip('<@!').strip('>')))
+        user = user.name + '#' + user.discriminator
+
+    # Checks if it's a valid troll.
+    if troll_id in valid_trolls:
+
+        # Checks if the user exists in the dictionary
+        if user in data.keys():
+
+            # If the user has the troll applied, remove it.
+            if troll_id in data[user]:
+                data[user].remove(troll_id)
+                await ctx.send(f'Removed {troll_id} from {user}')
+            else:
+                await ctx.send('User does not have troll applied.')
+        else:
+            await ctx.send('User does not have troll applied.')
+    else:
+        await ctx.send('Invalid Troll Criteria.')
+
+    log.append(f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: untroll {user} {troll_id}')
+
 
 @bot.command()
 async def ping(ctx):
