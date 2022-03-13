@@ -28,7 +28,7 @@ log = []
 
 # Saved user data loaded from file
 with open('data.json', 'r') as d:
-    data = json.load(d)
+    bot_data = json.load(d)
 
 # Valid trolls to enact on a user.
 valid_trolls = ['NAME_COLOR', 'MESSAGE_DELETE', 'GHOST_PING']
@@ -36,7 +36,7 @@ valid_trolls = ['NAME_COLOR', 'MESSAGE_DELETE', 'GHOST_PING']
 
 # Command loop
 def console():
-    global data
+    global bot_data
 
     while True:
         command = input('[>] ').split(' ')
@@ -255,7 +255,7 @@ async def trolls(ctx):
 
 @bot.command()
 async def troll(ctx, user, troll_id):
-    global valid_trolls, data
+    global valid_trolls, bot_data
 
     # Ensures proper user format.
     if "#" not in user:
@@ -284,7 +284,7 @@ async def troll(ctx, user, troll_id):
 
 @bot.command()
 async def untroll(ctx, user, troll_id):
-    global valid_trolls, data
+    global valid_trolls, bot_data
 
     # Ensures proper user format.
     if "#" not in user:

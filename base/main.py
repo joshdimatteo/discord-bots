@@ -24,16 +24,16 @@ if not os.path.exists('data.json'):
         d1.write('{}')
 
 # Log of all commands during this session
-log = []
+command_log = []
 
 # Saved user data loaded from file
 with open('data.json', 'r') as d2:
-    data = json.load(d2)
+    bot_data = json.load(d2)
 
 
 # Command loop
 def console():
-    global data
+    global bot_data
 
     while True:
 
@@ -56,25 +56,24 @@ shutdown                      Automatically saves data and writes a log
 
         # Prints log.
         elif command[0] == 'log':
-            for line in log:
+            for line in command_log:
                 print(line)
             print()
 
         # Prints data.
         elif command[0] == 'data':
-            print(str(data) + '\n')
+            print(str(bot_data) + '\n')
 
         # Saves data.
         elif command[0] == 'save':
             with open('data.json', 'w') as d3:
-                json.dump(data, d3)
+                json.dump(bot_data, d3)
                 print('[+] Saved data.\n')
 
         # Loads data.
         elif command[0] == 'load':
             with open('data.json', 'r') as d4:
-                print(d4)
-                data = json.load(d4)
+                bot_data = json.load(d4)
                 print('[+] Loaded most recent save.\n')
 
         # Saves current user data and log into a backup file
@@ -87,7 +86,7 @@ shutdown                      Automatically saves data and writes a log
 
             # Opens a json file with the same name as the tieme and saves data.
             with open(f'backups\\{NOW.date()}\\{str(NOW.time())[:-7].replace(":", ".")}.json', 'w') as b1:
-                json.dump(data, b1)
+                json.dump(bot_data, b1)
 
             print('[+] Successfully backed up data.\n')
 
@@ -97,7 +96,7 @@ shutdown                      Automatically saves data and writes a log
 
             # Saves data.
             with open('data.json', 'w') as d5:
-                json.dump(data, d5)
+                json.dump(bot_data, d5)
 
             # Checks if path exists for a folder for a specific date.
             if not os.path.exists(f'logs\\{NOW.date()}'):
@@ -105,7 +104,7 @@ shutdown                      Automatically saves data and writes a log
 
             # Opens a txt file with the same name as the time and saves log.
             with open(f'logs\\{NOW.date()}\\{str(NOW.time())[:-7].replace(":", ".")}.txt', 'w') as l1:
-                for line in log:
+                for line in command_log:
                     l1.write(line + '\n')
 
             print('[+] Saved data.\n')
@@ -129,7 +128,7 @@ async def on_ready():
 
 # Console commands, but through discord.
 @bot.command()
-async def help(ctx, criteria):
+async def help(ctx, criteria=None):
     if not criteria:
         await ctx.send(embed=discord.Embed(description="""
 **Help Commands**
@@ -173,15 +172,81 @@ async def help(ctx, criteria):
         else:
             await ctx.send(embed=discord.Embed(description='**Invalid Help Criteria**'))
 
-    log.append(
+    command_log.append(
         f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: help {criteria}')
+
+
+@bot.command()
+async def log(ctx):
+    if len(command_log) == 0:
+        await ctx.send(embed=discord.Embed(description='None'))
+    else:
+        await ctx.send(embed=discord.Embed(description='\n'.join(line.replace('[#]', '') for line in command_log)))
+        command_log.append(f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: log')
+
+
+@bot.command()
+async def data(ctx):
+    await ctx.send(embed=discord.Embed(description=bot_data))
+
+
+@bot.command()
+async def save(ctx):
+    with open('data.json', 'w') as d7:
+        json.dump(bot_data, d7)
+        await ctx.send('Saved data into file.')
+
+
+@bot.command()
+async def load(ctx):
+    global bot_data
+
+    with open('data.json', 'r') as d8:
+        bot_data = json.load(d8)
+        await ctx.send('Loaded most recent save.')
+
+
+@bot.command()
+async def backup(ctx):
+
+    # Checks if path exists for a folder for a specific date
+    if not os.path.exists(f'backups\\{NOW.date()}'):
+        os.makedirs(f'backups\\{NOW.date()}')
+
+    # Opens a json file with the same name as the tieme and saves data.
+    with open(f'backups\\{NOW.date()}\\{str(NOW.time())[:-7].replace(":", ".")}.json', 'w') as b2:
+        json.dump(bot_data, b2)
+
+    await ctx.send('Backed up data.')
+
+
+@bot.command()
+async def shutdown(ctx):
+
+    # Saves data.
+    with open('data.json', 'w') as d5:
+        json.dump(bot_data, d5)
+
+    # Checks if path exists for a folder for a specific date.
+    if not os.path.exists(f'logs\\{NOW.date()}'):
+        os.makedirs(f'logs\\{NOW.date()}')
+
+    # Opens a txt file with the same name as the time and saves log.
+    with open(f'logs\\{NOW.date()}\\{str(NOW.time())[:-7].replace(":", ".")}.txt', 'w') as l1:
+        for line in command_log:
+            l1.write(line + '\n')
+
+    await ctx.send('Data saved. Shutting down bot.')
+
+    # Kills program with PID
+    pid = os.getpid()
+    Process(pid).terminate()
 
 
 @bot.command()
 async def ping(ctx):
     await ctx.send('pong')
-
-    log.append(f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: ping')
+    command_log.append(f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: ping')
 
 
 # Runs bot
