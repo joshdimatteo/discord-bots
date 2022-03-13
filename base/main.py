@@ -73,6 +73,7 @@ shutdown                      Automatically saves data and writes a log
         # Loads data.
         elif command[0] == 'load':
             with open('data.json', 'r') as d4:
+                print(d4)
                 data = json.load(d4)
                 print('[+] Loaded most recent save.\n')
 
