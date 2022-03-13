@@ -130,7 +130,7 @@ async def on_ready():
 @bot.command()
 async def help(ctx, criteria=None):
     command_log.append(f'[#][{ctx.message.guild}][{ctx.message.channel}] {ctx.message.author}: \
-     help {(criteria if criteria is not None else "")}')
+                         help {(criteria if criteria is not None else "")}')
 
     # Prints all commands the owner can do, if the owner requests it.
     if criteria == 'admin' and await bot.is_owner(ctx.message.author):
